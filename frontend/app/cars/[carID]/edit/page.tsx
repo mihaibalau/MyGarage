@@ -1,8 +1,7 @@
-"use client";
-import { useEffect, useState } from "react";
-import CarForm from "@/app/CarForm";
+import { notFound } from 'next/navigation';
+import CarForm from '@/app/CarForm';
 
-type Car = {
+interface Car {
   carID: number;
   carBrand: string;
   carModel: string;
@@ -10,35 +9,42 @@ type Car = {
   insuranceValidity: string;
   roadTaxValidity: string;
   technicalInspectionValidity: string;
+}
+
+// Funcție pentru a converti data din format dd/mm/yyyy în yyyy-mm-dd
+const convertToHTMLDate = (dateStr: string): string => {
+  if (!dateStr) return '';
+  const [day, month, year] = dateStr.split('/');
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 };
 
-export default function EditCarPage({ params }: { params: { carID: string } }) {
-  const [carData, setCarData] = useState<Car | null>(null);
-  const [loading, setLoading] = useState(true);
+async function getCar(id: string): Promise<Car> {
+  const res = await fetch(`http://localhost:3001/api/cars/${id}`, { cache: 'no-store' });
+  
+  if (!res.ok) {
+    throw new Error('Failed to fetch car');
+  }
+  
+  return res.json();
+}
 
-  useEffect(() => {
-    const fetchCar = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:3001/api/cars/${params.carID}`
-        );
-        if (!response.ok) throw new Error("Mașina nu există");
-        const data: Car = await response.json();
-        setCarData(data);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCar();
-  }, [params.carID]);
-
-  if (loading) return <div className="text-center py-10">Se încarcă...</div>;
-
-  return carData ? (
-    <CarForm 
-      initialData={carData} 
-      carID={Number(params.carID)}
-      isEdit={true}
-    />
-  ) : null;
+export default async function EditPage({ params }: { params: { carID: string } }) {
+  try {
+    const car = await getCar(params.carID);
+    
+    return (
+      <CarForm 
+        initialData={{
+          ...car,
+          insuranceValidity: convertToHTMLDate(car.insuranceValidity),
+          roadTaxValidity: convertToHTMLDate(car.roadTaxValidity),
+          technicalInspectionValidity: convertToHTMLDate(car.technicalInspectionValidity)
+        }}
+        carID={car.carID}
+        isEdit={true}
+      />
+    );
+  } catch (error) {
+    return notFound();
+  }
 }

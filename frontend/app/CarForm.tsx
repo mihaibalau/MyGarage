@@ -37,12 +37,12 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
     try {
       const apiData = {
         ...data,
-        insuranceValidity: convertDate(data.insuranceValidity),
-        roadTaxValidity: convertDate(data.roadTaxValidity),
-        technicalInspectionValidity: convertDate(data.technicalInspectionValidity),
+        insuranceValidity: data.insuranceValidity.split('-').reverse().join('/'),
+        roadTaxValidity: data.roadTaxValidity.split('-').reverse().join('/'),
+        technicalInspectionValidity: data.technicalInspectionValidity.split('-').reverse().join('/')
       };
   
-      const endpoint = isEdit && carID
+      const endpoint = isEdit && carID 
         ? `http://localhost:3001/api/cars/${carID}`
         : "http://localhost:3001/api/cars";
   
@@ -53,40 +53,32 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
       });
   
       if (!response.ok) {
-        const errorText = await response.text();
-        const fieldMatch = errorText.match(/^"([^"]+)"/);
-        if (fieldMatch) {
-          setError(fieldMatch[1].replace(/ /g, '') as keyof CarFormValues, {
-            type: 'server',
-            message: errorText
-          });
-        } else {
-          setError('root', { type: 'server', message: errorText });
-        }
-        return;
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Server error");
       }
   
-      toast.success(isEdit ? "Mașină actualizată!" : "Mașină adăugată!");
+      toast.success(isEdit ? "Car updated!" : "Car added!");
       window.location.href = "/cars";
     } catch (err) {
       setError('root', {
         type: 'server',
-        message: err instanceof Error ? err.message : "Eroare de conexiune"
+        message: err instanceof Error ? err.message : "Connection error!"
       });
     }
   };
+  
 
   return (
     <div className="max-w-xl mx-auto mt-12 bg-white p-8 rounded-xl shadow-lg">
       <h1 className="text-3xl font-bold mb-8 text-center text-blue-700">
-        {isEdit ? "Modifică Mașină" : "Adaugă Mașină Nouă"}
+        {isEdit ? "Modify car" : "Add new car"}
       </h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Car Brand */}
         <div>
           <label className="block text-lg font-medium text-zinc-700 mb-1">
-            Brand Mașină
+            Car Brand
           </label>
           <input
             {...register("carBrand")}
@@ -120,7 +112,7 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
         {/* Year */}
         <div>
           <label className="block text-lg font-medium text-zinc-700 mb-1">
-            Anul Fabricării
+            Production Year
           </label>
           <input
             {...register("year", { valueAsNumber: true })}
@@ -138,7 +130,7 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
         {/* Insurance Validity */}
         <div>
           <label className="block text-lg font-medium text-zinc-700 mb-1">
-            Valabilitate Asigurare
+            Insurance Validity
           </label>
           <input
             {...register("insuranceValidity")}
@@ -154,7 +146,7 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
         {/* Road Tax Validity */}
         <div>
           <label className="block text-lg font-medium text-zinc-700 mb-1">
-            Valabilitate Rovignietă
+            Road Tax Validity
           </label>
           <input
             {...register("roadTaxValidity")}
@@ -170,7 +162,7 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
         {/* Technical Inspection Validity */}
         <div>
           <label className="block text-lg font-medium text-zinc-700 mb-1">
-            Valabilitate ITP
+          Technical Inspection Validity
           </label>
           <input
             {...register("technicalInspectionValidity")}
@@ -199,7 +191,7 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
             disabled={isSubmitting}
             className="px-8 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:bg-blue-300"
           >
-            {isSubmitting ? "Se salvează..." : (isEdit ? "Modify" : "Add")}
+            {isSubmitting ? "Saving..." : (isEdit ? "Modify" : "Add")}
           </button>
         </div>
       </form>

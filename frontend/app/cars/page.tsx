@@ -164,7 +164,7 @@ export default function CarsPage() {
               Confirm delete
             </h2>
             <p className="mb-6">
-              Ești sigur că vrei să ștergi <b>{confirmDelete.carBrand} {confirmDelete.carModel}</b>?
+              Are you sure you want to delete <b>{confirmDelete.carBrand} {confirmDelete.carModel}</b>?
             </p>
             <div className="flex justify-end gap-3">
               <button

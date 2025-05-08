@@ -44,7 +44,7 @@ app.get('/api/cars', (req, res) => {
 
         const validFields = ['brand', 'model', 'year', 'insurance', 'roadTax', 'inspection'];
         if (!validFields.includes(sortField)) {
-            return res.status(400).send('Invalid sort field. Allowed: brand, model, year, insurance, roadTax, inspection');
+            return res.status(400).json({ message: "Invalid sort field. Allowed: brand, model, year, insurance, roadTax, inspection"});
         }
 
         const keyMap = {
@@ -115,14 +115,14 @@ app.get('/api/cars', (req, res) => {
 
 app.get('/api/cars/:id', (req, res) => {
     var car = database.find(c => c.carID === parseInt(req.params.id));
-    if (!car) return res.status(404).send("The car id wasn't found inside the database");
+    if (!car) return res.status(404).json({ message: "The car id wasn't found inside the database" });
     res.send(car);
 })
 
 app.post('/api/cars', (req, res) => {
 
     validateResult = validateCar(req.body)
-    if(validateResult.error) return res.status(400).send(validateResult.error.details[0].message);
+    if(validateResult.error) return res.status(400).json({ error: validateResult.error.details[0].message });
     
     const car = {
         carID: database.length+1,
@@ -142,7 +142,7 @@ app.post('/api/cars', (req, res) => {
 app.put('/api/cars/:id', (req, res) => {
 
     var car = database.find(c => c.carID === parseInt(req.params.id));
-    if (!car) return res.status(404).send("The car id wasn't found inside the database");
+    if (!car) return res.status(404).json({ message: "The car id wasn't found inside the database" });
 
     validateResult = validateCar(req.body)
     if(validateResult.error) return res.status(400).send(validateResult.error.details[0].message);
@@ -159,7 +159,7 @@ app.put('/api/cars/:id', (req, res) => {
 
 app.patch('/api/cars/:id', (req, res) => {
     const car = database.find(c => c.carID === parseInt(req.params.id));
-    if (!car) return res.status(404).send("The car id wasn't found inside the database");
+    if (!car) return res.status(404).json({ message: "The car id wasn't found inside the database" });
 
     const updatedCar = {
         carBrand: req.body.carBrand ?? car.carBrand,
@@ -187,7 +187,7 @@ app.patch('/api/cars/:id', (req, res) => {
 app.delete('/api/cars/:id', (req, res) => {
 
     var car = database.find(c => c.carID === parseInt(req.params.id));
-    if (!car) return res.status(404).send("The car id wasn't found inside the database");
+    if (!car) return res.status(404).json({ message: "The car id wasn't found inside the database" });
 
     const index = database.indexOf(car);
     database.splice(index, 1);
