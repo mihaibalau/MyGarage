@@ -2,12 +2,14 @@ const Joi = require('joi');
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
 app.use(express.json());
+app.use(cors());
 
 let database = [
     { carID: 1, carBrand: "BMW", carModel: "Seria 1", year: 2010, insuranceValidity: "10/8/2025", roadTaxValidity: "31/12/2025", technicalInspectionValidity: "3/5/2026"},
@@ -208,19 +210,19 @@ io.on('connection', (socket) => {
 
 // DATA GENERATION FOR CHARTS
 
-setInterval(() => {
-    const newCar = {
-        carID: database.length + 1,
-        carBrand: "LiveBrand_" + Math.floor(Math.random() * 100),
-        carModel: "ModelX",
-        year: 2000 + Math.floor(Math.random() * 25),
-        insuranceValidity: "1/1/2027",
-        roadTaxValidity: "1/1/2027",
-        technicalInspectionValidity: "1/1/2027"
-    };
-    database.push(newCar);
-    io.emit('newCar', newCar); // trimite mașina nouă către toți clienții conectați
-}, 10000); // la fiecare 10 secunde
+// setInterval(() => {
+//     const newCar = {
+//         carID: database.length + 1,
+//         carBrand: "LiveBrand_" + Math.floor(Math.random() * 100),
+//         carModel: "ModelX",
+//         year: 2000 + Math.floor(Math.random() * 25),
+//         insuranceValidity: "1/1/2027",
+//         roadTaxValidity: "1/1/2027",
+//         technicalInspectionValidity: "1/1/2027"
+//     };
+//     database.push(newCar);
+//     io.emit('newCar', newCar); // trimite mașina nouă către toți clienții conectați
+// }, 10000); // la fiecare 10 secunde
 
 
 // LARGE DATA UPLOADING
@@ -266,7 +268,7 @@ app.get('/files/:filename', (req, res) => {
 
 // END
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 server.listen(port, () => console.log(`Server + WebSocket listening on port ${port}...`));
 
 module.exports = app;
