@@ -144,8 +144,9 @@ app.put('/api/cars/:id', (req, res) => {
     var car = database.find(c => c.carID === parseInt(req.params.id));
     if (!car) return res.status(404).json({ message: "The car id wasn't found inside the database" });
 
-    validateResult = validateCar(req.body)
-    if(validateResult.error) return res.status(400).send(validateResult.error.details[0].message);
+    // console.log(req.body)
+    // validateResult = validateCar(req.body)
+    // if(validateResult.error) return res.status(400).json({ message: "VALIDAREA CRAPA" });
 
     car.carBrand = req.body.carBrand;
     car.carModel = req.body.carModel;
