@@ -19,12 +19,6 @@ type CarFormProps = {
   isEdit?: boolean;
 };
 
-const convertDate = (dateStr: string) => {
-  if (!dateStr) return "";
-  const [year, month, day] = dateStr.split("-");
-  return `${day}/${month}/${year}`;
-};
-
 const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false }) => {
   const {
     register,
@@ -35,12 +29,6 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
 
   const onSubmit = async (data: CarFormValues) => {
     try {
-      const apiData = {
-        ...data,
-        insuranceValidity: data.insuranceValidity.split('-').reverse().join('/'),
-        roadTaxValidity: data.roadTaxValidity.split('-').reverse().join('/'),
-        technicalInspectionValidity: data.technicalInspectionValidity.split('-').reverse().join('/')
-      };
   
       const endpoint = isEdit && carID 
         ? `http://localhost:3001/api/cars/${carID}`
@@ -49,7 +37,7 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
       const response = await fetch(endpoint, {
         method: isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(apiData),
+        body: JSON.stringify(data),
       });
   
       if (!response.ok) {

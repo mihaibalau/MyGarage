@@ -3,27 +3,28 @@ const express = require('express');
 const router = express.Router();
 
 let database = [
-    { carID: 1, carBrand: "BMW", carModel: "Seria 1", year: 2010, insuranceValidity: "10/8/2025", roadTaxValidity: "31/12/2025", technicalInspectionValidity: "3/5/2026"},
-    { carID: 2, carBrand: "Mercedes", carModel: "GLS", year: 2015, insuranceValidity: "15/1/2026", roadTaxValidity: "25/4/2026", technicalInspectionValidity: "8/8/2026"},
-    { carID: 3, carBrand: "Volkswagen", carModel: "Caddy", year: 2018, insuranceValidity: "8/6/2025", roadTaxValidity: "13/7/2025", technicalInspectionValidity: "4/3/2027"},
-    { carID: 4, carBrand: "Seat", carModel: "Ibiza", year: 2008, insuranceValidity: "17/3/2020", roadTaxValidity: "18/11/2021", technicalInspectionValidity: "2/11/2019"},
-    { carID: 5, carBrand: "Volvo", carModel: "XC60", year: 2020, insuranceValidity: "1/1/2027", roadTaxValidity: "27/3/2026", technicalInspectionValidity: "21/5/2027"},
-    { carID: 6, carBrand: "Skoda", carModel: "Octavia", year: 2001, insuranceValidity: "24/06/2016", roadTaxValidity: "3/10/2016", technicalInspectionValidity: "16/1/2016"}
+    { carID: 1, carBrand: "BMW", carModel: "Seria 1", year: 2010, insuranceValidity: "2025-08-10", roadTaxValidity: "2025-12-31", technicalInspectionValidity: "2026-05-03"},
+    { carID: 2, carBrand: "Mercedes", carModel: "GLS", year: 2015, insuranceValidity: "2026-01-15", roadTaxValidity: "2026-04-25", technicalInspectionValidity: "2026-08-08"},
+    { carID: 3, carBrand: "Volkswagen", carModel: "Caddy", year: 2018, insuranceValidity: "2025-06-08", roadTaxValidity: "2025-07-13", technicalInspectionValidity: "2027-03-04"},
+    { carID: 4, carBrand: "Seat", carModel: "Ibiza", year: 2008, insuranceValidity: "2020-03-17", roadTaxValidity: "2021-11-18", technicalInspectionValidity: "2019-11-02"},
+    { carID: 5, carBrand: "Volvo", carModel: "XC60", year: 2020, insuranceValidity: "2027-01-01", roadTaxValidity: "2026-03-27", technicalInspectionValidity: "2027-05-21"},
+    { carID: 6, carBrand: "Skoda", carModel: "Octavia", year: 2001, insuranceValidity: "2016-06-24", roadTaxValidity: "2016-10-03", technicalInspectionValidity: "2016-01-16"}
 ]
 
-function validateCar(car){
+function validateCar(car) {
 
-    const schema = Joi.object({
-        carBrand: Joi.string().min(3).required(),
-        carModel: Joi.string().min(3).required(),
-        year: Joi.number().integer().min(1900).max(2025).required(),
-        insuranceValidity: Joi.string().pattern(/^([0]?[1-9]|[12][0-9]|3[01])\/([0]?[1-9]|1[0-2])\/\d{4}$/),
-        roadTaxValidity: Joi.string().pattern(/^([0]?[1-9]|[12][0-9]|3[01])\/([0]?[1-9]|1[0-2])\/\d{4}$/),
-        technicalInspectionValidity: Joi.string().pattern(/^([0]?[1-9]|[12][0-9]|3[01])\/([0]?[1-9]|1[0-2])\/\d{4}$/)
-      });
+  const schema = Joi.object({
+    carBrand: Joi.string().min(3).required(),
+    carModel: Joi.string().required(),
+    year: Joi.number().integer().min(1900).max(2030),
+    insuranceValidity: Joi.date().iso().required(),
+    roadTaxValidity: Joi.date().iso().required(),
+    technicalInspectionValidity: Joi.date().iso().required()
+  }).unknown(true);
 
-      return schema.validate(car);
+  return schema.validate(car);
 }
+
 
 router.get('/', (req, res) => {
     let cars = [...database];
@@ -53,14 +54,14 @@ router.get('/', (req, res) => {
             let valueB = b[key];
 
             if (key.includes('Validity')) {
-                const [dayA, monthA, yearA] = valueA.split('/').map(Number);
-                const [dayB, monthB, yearB] = valueB.split('/').map(Number);
+                const [yearA, monthA, dayA] = valueA.split('-').map(Number);
+                const [yearB, monthB, dayB] = valueB.split('-').map(Number);
                 valueA = new Date(yearA, monthA - 1, dayA);
                 valueB = new Date(yearB, monthB - 1, dayB);
             }
 
             let comparison;
-            if (typeof valueA === 'string') {
+            if (typeof valueA === 'string' && !(valueA instanceof Date)) {
                 comparison = valueA.localeCompare(valueB); 
             } else if (valueA instanceof Date) {
                 comparison = valueA - valueB;
@@ -74,7 +75,7 @@ router.get('/', (req, res) => {
 
     if (req.query.isValidInsurance === 'true') {
         cars = cars.filter(car => {
-            const [day, month, year] = car.insuranceValidity.split('/').map(Number);
+            const [year, month, day] = car.insuranceValidity.split('-').map(Number);
             const expiryDate = new Date(year, month - 1, day);
             return expiryDate > today;
         });
@@ -82,7 +83,7 @@ router.get('/', (req, res) => {
 
     if (req.query.isValidRoadTax === 'true') {
         cars = cars.filter(car => {
-            const [day, month, year] = car.roadTaxValidity.split('/').map(Number);
+            const [year, month, day] = car.roadTaxValidity.split('-').map(Number);
             const expiryDate = new Date(year, month - 1, day);
             return expiryDate > today;
         });
@@ -90,7 +91,7 @@ router.get('/', (req, res) => {
 
     if (req.query.isValidInspection === 'true') {
         cars = cars.filter(car => {
-            const [day, month, year] = car.technicalInspectionValidity.split('/').map(Number);
+            const [year, month, day] = car.technicalInspectionValidity.split('-').map(Number);
             const expiryDate = new Date(year, month - 1, day);
             return expiryDate > today;
         });
@@ -113,7 +114,7 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
 
     validateResult = validateCar(req.body)
-    if(validateResult.error) return res.status(400).json({ error: validateResult.error.details[0].message });
+    if(validateResult.error) return res.status(400).json({ message: validateResult.error.details[0].message });
     
     const car = {
         carID: database.length+1,
@@ -135,9 +136,8 @@ router.put('/:id', (req, res) => {
     var car = database.find(c => c.carID === parseInt(req.params.id));
     if (!car) return res.status(404).json({ message: "The car id wasn't found inside the database" });
 
-    // console.log(req.body)
-    // validateResult = validateCar(req.body)
-    // if(validateResult.error) return res.status(400).json({ message: "VALIDAREA CRAPA" });
+    validateResult = validateCar(req.body)
+    if(validateResult.error) return res.status(400).json({ message: validateResult.error.details[0].message });
 
     car.carBrand = req.body.carBrand;
     car.carModel = req.body.carModel;
