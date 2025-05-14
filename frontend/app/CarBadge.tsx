@@ -26,15 +26,15 @@ const CarBadge: React.FC<Props> = ({ car, onModify, onDelete }) => (
     </div>
     {/* Valability */}
     <div className="flex-1 flex flex-col md:flex-row justify-center items-center gap-3 mt-3 md:mt-0">
-      <div className="bg-blue-50 px-3 py-1 rounded text-blue-800 text-sm">
-        Insurance: {car.insuranceValidity}
-      </div>
-      <div className="bg-green-50 px-3 py-1 rounded text-green-800 text-sm">
-        Road Tax: {car.roadTaxValidity}
-      </div>
-      <div className="bg-yellow-50 px-3 py-1 rounded text-yellow-800 text-sm">
-        Inspection: {car.technicalInspectionValidity}
-      </div>
+        <div className="bg-blue-50 px-3 py-1 rounded text-blue-800 text-sm min-w-[120px]">
+          Insurance: {car.insuranceValidity}
+        </div>
+        <div className="bg-green-50 px-3 py-1 rounded text-green-800 text-sm min-w-[120px]">
+          Road Tax: {car.roadTaxValidity}
+        </div>
+        <div className="bg-yellow-50 px-3 py-1 rounded text-yellow-800 text-sm min-w-[120px]">
+          Inspection: {car.technicalInspectionValidity}
+        </div>
     </div>
     {/* Buttons */}
     <div className="flex flex-col gap-2 md:ml-6 mt-3 md:mt-0">
