@@ -3,6 +3,7 @@ const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
 const cars = require('./routes/cars');
+const statisticsRouter = require('./routes/statistics');
 
 const app = express();
 const server = http.createServer(app);
@@ -11,6 +12,8 @@ const io = socketIO(server);
 app.use(express.json());
 app.use(cors());
 app.use('/api/cars', cars);
+app.use('/api/statistics', statisticsRouter);
+
 
 io.on('connection', (socket) => {
     console.log('Client connected:', socket.id);
