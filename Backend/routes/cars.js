@@ -56,7 +56,8 @@ router.get('/', async (req, res) => {
     }
 
     const offset = parseInt(req.query.offset) || 0;
-    const limit = parseInt(req.query.limit) || undefined;
+    const requestedLimit = parseInt(req.query.limit);
+    const limit = !isNaN(requestedLimit) ? Math.min(requestedLimit, 10) : 10;
 
     try {
         const cars = await prisma.car.findMany({

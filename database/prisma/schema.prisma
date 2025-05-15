@@ -32,7 +32,15 @@ model Car {
   insuranceValidity            DateTime
   roadTaxValidity              DateTime
   technicalInspectionValidity  DateTime
-  userId                       Int
-  user                         User     @relation(fields: [userId], references: [id])
+  userId                       Int?
+  user                         User?     @relation(fields: [userId], references: [id])
+
+  @@index([carBrand])
+  @@index([carModel])
+  @@index([year])
+  @@index([insuranceValidity])
+  @@index([roadTaxValidity])
+  @@index([technicalInspectionValidity])
 }
+
 
