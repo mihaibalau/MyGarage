@@ -20,13 +20,18 @@ function validateCar(car) {
 
 router.get('/', async (req, res) => {
     const today = new Date();
+    
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
 
     const sortField = req.query.sortBy;
     const order = req.query.order === 'desc' ? 'desc' : 'asc';
     const validFields = ['brand', 'model', 'year', 'insurance', 'roadTax', 'inspection'];
+    
     const keyMap = {
         brand: 'carBrand',
-        model: 'carModel',
+        model: 'carModel', 
         year: 'year',
         insurance: 'insuranceValidity',
         roadTax: 'roadTaxValidity',
@@ -34,48 +39,35 @@ router.get('/', async (req, res) => {
     };
 
     let orderBy = undefined;
-    if (sortField) {
-        if (!validFields.includes(sortField)) {
-            return res.status(400).json({ message: "Invalid sort field. Allowed: brand, model, year, insurance, roadTax, inspection" });
-        }
-        orderBy = {};
-        orderBy[keyMap[sortField]] = order;
+    if (sortField && validFields.includes(sortField)) {
+        orderBy = { [keyMap[sortField]]: order };
     }
 
     const filters = {};
-    if (req.query.isValidInsurance === 'true') {
-        filters.insuranceValidity = { gt: today };
-    }
-
-    if (req.query.isValidRoadTax === 'true') {
-        filters.roadTaxValidity = { gt: today };
-    }
-
-    if (req.query.isValidInspection === 'true') {
-        filters.technicalInspectionValidity = { gt: today };
-    }
-
-    const offset = parseInt(req.query.offset) || 0;
-    const requestedLimit = parseInt(req.query.limit);
-    const limit = !isNaN(requestedLimit) ? Math.min(requestedLimit, 10) : 10;
+    if (req.query.isValidInsurance === 'true') filters.insuranceValidity = { gt: today };
+    if (req.query.isValidRoadTax === 'true') filters.roadTaxValidity = { gt: today };
+    if (req.query.isValidInspection === 'true') filters.technicalInspectionValidity = { gt: today };
 
     try {
-        const cars = await prisma.car.findMany({
-            where: filters,
-            orderBy: orderBy,
-            skip: offset,
-            take: limit,
-            select: {
-                carID: true,
-                carBrand: true,
-                carModel: true,
-                year: true,
-                insuranceValidity: true,
-                roadTaxValidity: true,
-                technicalInspectionValidity: true,
-                userId: true
-            }
-        });
+        const [cars, totalCars] = await prisma.$transaction([
+            prisma.car.findMany({
+                where: filters,
+                orderBy,
+                skip: offset,
+                take: limit,
+                select: {
+                    carID: true,
+                    carBrand: true,
+                    carModel: true,
+                    year: true,
+                    insuranceValidity: true,
+                    roadTaxValidity: true,
+                    technicalInspectionValidity: true,
+                    userId: true
+                }
+            }),
+            prisma.car.count({ where: filters })
+        ]);
 
         const formattedCars = cars.map(car => ({
             ...car,
@@ -84,8 +76,13 @@ router.get('/', async (req, res) => {
             technicalInspectionValidity: car.technicalInspectionValidity.toISOString().split('T')[0]
         }));
 
-        res.json(formattedCars);
+        res.json({
+            cars: formattedCars,
+            totalPages: Math.ceil(totalCars / limit),
+            currentPage: page
+        });
     } catch (error) {
+        console.error('Database error:', error);
         res.status(500).json({ message: "Database error", error: error.message });
     }
 });

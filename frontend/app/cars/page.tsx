@@ -35,41 +35,40 @@ export default function CarsPage() {
   });
   const [confirmDelete, setConfirmDelete] = useState<Car | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
 
-
-  
   const fetchCars = async () => {
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams();
-      params.append("sortBy", sortBy);
-      params.append("order", order);
-      if (filter.isValidInsurance) params.append("isValidInsurance", "true");
-      if (filter.isValidRoadTax) params.append("isValidRoadTax", "true");
-      if (filter.isValidInspection) params.append("isValidInspection", "true");
+        const params = new URLSearchParams();
+        params.append('page', currentPage.toString());
+        params.append('limit', itemsPerPage.toString());
+        params.append('sortBy', sortBy);
+        params.append('order', order);
+        
+        if (filter.isValidInsurance) params.append('isValidInsurance', 'true');
+        if (filter.isValidRoadTax) params.append('isValidRoadTax', 'true');
+        if (filter.isValidInspection) params.append('isValidInspection', 'true');
 
-      const res = await fetch(`${API_URL}?${params.toString()}`);
-      if (!res.ok) {
-        throw new Error(`HTTP error! Status: ${res.status}`);
+        const res = await fetch(`${API_URL}?${params.toString()}`);
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        
+        const data = await res.json();
+        setCars(data.cars || []); 
+        setTotalPages(data.totalPages || 1); 
+      } catch (err: any) {
+          setError(err.message || "Unknown error occurred.");
+          setCars([]);
+          setTotalPages(1);
+      } finally {
+          setLoading(false);
       }
-      const data = await res.json();
-      setCars(data);
-    } catch (err: any) {
-      
-      if (err.message === "Failed to fetch") {
-        setError("Network error. Please check your internet connection.");
-      } else {
-        setError(err.message || "Unknown error occurred.");
-      }
-      setCars([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-
-  useEffect(() => { fetchCars(); }, [sortBy, order, filter]);
+  useEffect(() => { fetchCars(); }, [sortBy, order, filter, currentPage]);
 
   const handleModify = (car: Car) => {
     window.location.href = `/cars/${car.carID}/edit`;
@@ -86,8 +85,41 @@ export default function CarsPage() {
     fetchCars();
   };
 
+  type PaginationProps = {
+      totalPages: number;
+      currentPage: number;
+      onPageChange: (page: number) => void;
+  };
+
+  const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPageChange }) => {
+    return (
+      <div className="flex justify-center items-center gap-2 mt-8">
+        <button
+          className="px-4 py-2 rounded bg-zinc-200 text-zinc-700 hover:bg-zinc-300 transition disabled:opacity-50"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        
+        <span className="px-4 py-2 rounded bg-teal-600 text-white font-bold">
+          Page {currentPage}
+        </span>
+
+        <button
+          className="px-4 py-2 rounded bg-zinc-200 text-zinc-700 hover:bg-zinc-300 transition disabled:opacity-50"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-8">
+
       <h1 className="text-3xl font-bold text-center mb-8">Garage</h1>
 
       <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-2">
@@ -158,11 +190,11 @@ export default function CarsPage() {
             Inspection valid
           </label>
         </div>
-
       </div>
 
       {error ? (
         <div className="flex flex-col items-center justify-center py-10 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg shadow-sm mx-auto max-w-s">
+
           <svg xmlns="http://www.w3.org/2000/svg"
             width="24" height="24" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" strokeWidth="2"
@@ -172,6 +204,7 @@ export default function CarsPage() {
             <path d="M12 8v4" />
             <circle cx="12" cy="16" r="1" />
           </svg>
+
           <span className="font-semibold text-base">{error}</span>
           <button
             onClick={fetchCars}
@@ -180,16 +213,21 @@ export default function CarsPage() {
             Retry
           </button>
         </div>
+
       ) : loading ? (
         <div className="flex flex-col items-center justify-center py-10 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg shadow-sm mx-auto max-w-s animate-pulse">
+
           <svg className="w-6 h-6 mb-2 animate-spin text-yellow-400" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
           </svg>
+
           <span className="font-semibold text-base">Loading...</span>
         </div>
+
       ) : cars.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 bg-zinc-50 border border-zinc-200 text-zinc-500 rounded-lg shadow-sm mx-auto max-w-s">
+
           <svg xmlns="http://www.w3.org/2000/svg"
             width="24" height="24" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" strokeWidth="2"
@@ -198,52 +236,63 @@ export default function CarsPage() {
             <rect x="5" y="11" width="14" height="8" rx="2" />
             <path d="M8 11V7a4 4 0 0 1 8 0v4" />
           </svg>
+
           <span className="font-semibold text-base">No cars found.</span>
         </div>
+
       ) : (
-        cars.map((car) => (
-          <CarBadge
-            key={car.carID}
-            car={car}
-            onModify={handleModify}
-            onDelete={handleDelete}
-          />
-        ))
+        <>
+          {cars.map((car) => (
+            <CarBadge
+              key={car.carID}
+              car={car}
+              onModify={handleModify}
+              onDelete={handleDelete}
+            />
+          ))}
+          {totalPages > 1 && (
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </>
       )}
 
-      
       {confirmDelete && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-            <div className="bg-white border border-zinc-200 rounded-xl shadow-lg p-8 max-w-sm w-full flex flex-col items-center">
-              
-              <svg className="w-10 h-10 mb-4 text-rose-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" className="stroke-rose-200" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01" />
-              </svg>
-              <h2 className="text-xl font-bold text-rose-700 mb-2 text-center">
-                Confirm delete
-              </h2>
-              <p className="mb-6 text-center text-zinc-700">
-                Are you sure you want to delete
-                <span className="font-semibold text-rose-700"> {confirmDelete.carBrand} {confirmDelete.carModel}</span>?
-              </p>
-              <div className="flex justify-end gap-3 w-full">
-                <button
-                  className="px-5 py-2 rounded-lg bg-zinc-100 text-zinc-700 font-medium hover:bg-zinc-200 transition"
-                  onClick={() => setConfirmDelete(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-5 py-2 rounded-lg bg-rose-500 text-white font-semibold hover:bg-rose-600 transition"
-                  onClick={confirmDeleteCar}
-                >
-                  Delete
-                </button>
-              </div>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white border border-zinc-200 rounded-xl shadow-lg p-8 max-w-sm w-full flex flex-col items-center">
+            <svg className="w-10 h-10 mb-4 text-rose-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" className="stroke-rose-200" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01" />
+            </svg>
+            <h2 className="text-xl font-bold text-rose-700 mb-2 text-center">
+              Confirm delete
+            </h2>
+            <p className="mb-6 text-center text-zinc-700">
+              Are you sure you want to delete
+              <span className="font-semibold text-rose-700"> {confirmDelete.carBrand} {confirmDelete.carModel}</span>?
+            </p>
+            <div className="flex justify-end gap-3 w-full">
+              <button
+                className="px-5 py-2 rounded-lg bg-zinc-100 text-zinc-700 font-medium hover:bg-zinc-200 transition"
+                onClick={() => setConfirmDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-5 py-2 rounded-lg bg-rose-500 text-white font-semibold hover:bg-rose-600 transition"
+                onClick={confirmDeleteCar}
+              >
+                Delete
+              </button>
             </div>
           </div>
+        </div>
       )}
+
     </div>
   );
+
 }
