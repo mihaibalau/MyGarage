@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
     const users = [];
-    // 1. Generate 1000 users (or as many as you want)
+    // 1. Generate 1000 users
     for (let i = 0; i < 1000; i++) {
         users.push(await prisma.user.create({
             data: {
