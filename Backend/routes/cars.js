@@ -21,17 +21,14 @@ function validateCar(car) {
 router.get('/', async (req, res) => {
     const today = new Date();
     
-    // Parametrii pentru paginare
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    // Logica pentru sortare și filtrare
     const sortField = req.query.sortBy;
     const order = req.query.order === 'desc' ? 'desc' : 'asc';
     const validFields = ['brand', 'model', 'year', 'insurance', 'roadTax', 'inspection'];
     
-    // COMPLETEAZĂ keyMap (era incomplet!)
     const keyMap = {
         brand: 'carBrand',
         model: 'carModel', 
@@ -58,7 +55,6 @@ router.get('/', async (req, res) => {
                 orderBy,
                 skip: offset,
                 take: limit,
-                // COMPLETEAZĂ select (era incomplet!)
                 select: {
                     carID: true,
                     carBrand: true,
@@ -86,12 +82,10 @@ router.get('/', async (req, res) => {
             currentPage: page
         });
     } catch (error) {
-        console.error('Database error:', error); // Pentru debugging
+        console.error('Database error:', error);
         res.status(500).json({ message: "Database error", error: error.message });
     }
 });
-
-
 
 router.get('/:id', async (req, res) => {
     const carId = parseInt(req.params.id)
