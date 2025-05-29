@@ -31,11 +31,9 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
   const onSubmit = async (data: CarFormValues) => {
     try {
   
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-
       const endpoint = isEdit && carID 
-          ? `${API_URL}/api/cars/${carID}`
-          : `${API_URL}/api/cars`;
+        ? `http://localhost:3001/api/cars/${carID}`
+        : "http://localhost:3001/api/cars";
   
       const response = await fetch(endpoint, {
         method: isEdit ? "PUT" : "POST",
@@ -58,7 +56,6 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
     }
   };
   
-
   return (
     <div className="max-w-xl mx-auto mt-12 bg-white p-8 rounded-xl shadow-lg">
 
@@ -84,7 +81,6 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
           />
         </div>
 
-        
         <div>
           <label className="block text-lg font-medium text-zinc-700 mb-1">
             Model

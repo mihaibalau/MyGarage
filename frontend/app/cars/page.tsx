@@ -12,7 +12,7 @@ type Car = {
   technicalInspectionValidity: string;
 };
 
-const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/cars`;
+const API_URL = "http://localhost:3001/api/cars";
 
 const sortOptions = [
   { value: "brand", label: "Brand" },
@@ -59,8 +59,8 @@ export default function CarsPage() {
         const data = await res.json();
         setCars(data.cars || []); 
         setTotalPages(data.totalPages || 1); 
-      } catch (err: unknown) {
-          setError("Unknown error occurred.")
+      } catch (err: any) {
+          setError(err.message || "Unknown error occurred.");
           setCars([]);
           setTotalPages(1);
       } finally {
@@ -68,9 +68,7 @@ export default function CarsPage() {
       }
     };
 
-  useEffect(() => { 
-    fetchCars();
-  }, [fetchCars]); 
+  useEffect(() => { fetchCars(); }, [sortBy, order, filter, currentPage]);
 
   const handleModify = (car: Car) => {
     window.location.href = `/cars/${car.carID}/edit`;
