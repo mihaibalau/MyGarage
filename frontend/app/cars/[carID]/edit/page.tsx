@@ -12,28 +12,34 @@ async function getCar(id: string) {
   return res.json();
 }
 
-export default async function EditPage(props: any) {
-  const { carID } = await props.params;
+interface EditPageProps {
+  params: {
+    carID: string
+  }
+}
+
+export default async function EditPage(props: EditPageProps) {
+  const { carID } = props.params
 
   if (!carID) {
-    throw new Error('Failed to fetch car.');
+    throw new Error('Failed to fetch car.')
   }
 
   try {
-    const car = await getCar(carID);
+    const car = await getCar(carID)
 
     return (
-        <CarForm
-          initialData={car}
-          carID={car.carID}
-          isEdit={true}
-        />
-    );
-  } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      } else {
-        throw new Error('Failed to load the error from cars edit page.');
-      }
+      <CarForm
+        initialData={car}
+        carID={car.carID}
+        isEdit={true}
+      />
+    )
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to load car: ${error.message}`)
+    }
+    throw new Error('Failed to load car: Unknown error')
   }
 }
+

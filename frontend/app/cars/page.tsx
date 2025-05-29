@@ -59,8 +59,16 @@ export default function CarsPage() {
         const data = await res.json();
         setCars(data.cars || []); 
         setTotalPages(data.totalPages || 1); 
-      } catch (err: any) {
-          setError(err.message || "Unknown error occurred.");
+      } catch (err: unknown) {
+          let errorMessage = "Unknown error occurred.";
+          
+          if (err instanceof Error) {
+              errorMessage = err.message;
+          } else if (typeof err === "string") {
+              errorMessage = err;
+          } else if (err && typeof err === "object" && "message" in err) {
+              errorMessage = String(err.message);
+          }
           setCars([]);
           setTotalPages(1);
       } finally {
