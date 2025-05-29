@@ -31,9 +31,11 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
   const onSubmit = async (data: CarFormValues) => {
     try {
   
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
       const endpoint = isEdit && carID 
-        ? `http://localhost:3001/api/cars/${carID}`
-        : "http://localhost:3001/api/cars";
+          ? `${API_URL}/api/cars/${carID}`
+          : `${API_URL}/api/cars`;
   
       const response = await fetch(endpoint, {
         method: isEdit ? "PUT" : "POST",
