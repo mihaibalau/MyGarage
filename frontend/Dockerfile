@@ -6,6 +6,7 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+ENV NEXT_PUBLIC_API_URL=http://backend:3001
 RUN npm run build
 
 EXPOSE 3000
