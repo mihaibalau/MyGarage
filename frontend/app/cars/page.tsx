@@ -60,15 +60,7 @@ export default function CarsPage() {
         setCars(data.cars || []); 
         setTotalPages(data.totalPages || 1); 
       } catch (err: unknown) {
-          let errorMessage = "Unknown error occurred.";
-          
-          if (err instanceof Error) {
-              errorMessage = err.message;
-          } else if (typeof err === "string") {
-              errorMessage = err;
-          } else if (err && typeof err === "object" && "message" in err) {
-              errorMessage = String(err.message);
-          }
+          setError("Unknown error occurred.")
           setCars([]);
           setTotalPages(1);
       } finally {
@@ -76,7 +68,9 @@ export default function CarsPage() {
       }
     };
 
-  useEffect(() => { fetchCars(); }, [sortBy, order, filter, currentPage]);
+  useEffect(() => { 
+    fetchCars();
+  }, [fetchCars]); 
 
   const handleModify = (car: Car) => {
     window.location.href = `/cars/${car.carID}/edit`;
