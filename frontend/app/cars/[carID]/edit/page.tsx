@@ -1,7 +1,7 @@
 import CarForm from '@/app/CarForm';
 
 async function getCar(id: string) {
-  const res = await fetch(`http://localhost:3001/api/cars/${id}`, { cache: 'no-store' });
+  const res = await fetch(`http://51.21.152.86:3001/api/cars/${id}`, { cache: 'no-store' });
 
   if (!res.ok) {
     throw new Error('Failed to fetch car. The id missing.');

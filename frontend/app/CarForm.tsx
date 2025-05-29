@@ -32,8 +32,8 @@ const CarForm: React.FC<CarFormProps> = ({ initialData, carID, isEdit = false })
     try {
   
       const endpoint = isEdit && carID 
-        ? `http://localhost:3001/api/cars/${carID}`
-        : "http://localhost:3001/api/cars";
+        ? `http://51.21.152.86:3001/api/cars/${carID}`
+        : "http://51.21.152.86:3001/api/cars";
   
       const response = await fetch(endpoint, {
         method: isEdit ? "PUT" : "POST",

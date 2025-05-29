@@ -12,7 +12,7 @@ type Car = {
   technicalInspectionValidity: string;
 };
 
-const API_URL = "http://localhost:3001/api/cars";
+const API_URL = "http://51.21.152.86:3001/api/cars";
 
 const sortOptions = [
   { value: "brand", label: "Brand" },
