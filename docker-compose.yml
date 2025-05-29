@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0
+    image: mysql:8.0.36
     container_name: mygarage_mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
