@@ -20,6 +20,6 @@ _Track insurance, road tax & inspection deadlines with automated alerts_
 **Validation**: Zod  
 **Development**: Faker.js for test data
 
-## Showcare:
+## Showcase:
 
 Video: https://youtu.be/ZPDt0uymPNk
