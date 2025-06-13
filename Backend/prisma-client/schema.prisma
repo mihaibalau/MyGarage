@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../Backend/prisma-client"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  birthDate DateTime
+  username  String   @unique
+  password  String
+  cars      Car[]
+}
+
+model Car {
+  carID                       Int      @id @default(autoincrement())
+  carBrand                    String
+  carModel                    String
+  year                        Int
+  insuranceValidity           DateTime
+  roadTaxValidity             DateTime
+  technicalInspectionValidity DateTime
+  userId                      Int?
+  user                        User?    @relation(fields: [userId], references: [id])
+
+  @@index([carBrand])
+  @@index([carModel])
+  @@index([year])
+  @@index([insuranceValidity])
+  @@index([roadTaxValidity])
+  @@index([technicalInspectionValidity])
+}
