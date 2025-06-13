@@ -6,14 +6,20 @@ _Track insurance, road tax & inspection deadlines with automated alerts_
 [![Prisma](https://img.shields.io/badge/Prisma-5-orange)](https://prisma.io/)
 
 ## Features ✨
+
 - 🚨 Color-coded expiration alerts (red/orange/green)
-- 📅 Automatic deadline calculations
-- 🔄 Real-time sync across devices
-- 📦 Docker-ready deployment
+- 📅 Automatic deadline calculations  
+- 📱 Responsive web interface
+- 🔒 Secure data management
 
 ## Tech Stack 🛠️
-**Frontend**: Next.js 14, Tailwind CSS, React Hook Form  
-**Backend**: Node.js, Express, Socket.io  
-**Database**: MySQL, Prisma ORM  
-**Tools**: Docker, Faker.js, Zod
 
+**Frontend**: Next.js 14, TypeScript, Tailwind CSS, React Hook Form  
+**Backend**: Node.js, Express  
+**Database**: MySQL, Prisma ORM  
+**Validation**: Zod  
+**Development**: Faker.js for test data
+
+## Showcare:
+
+Video: https://youtu.be/ZPDt0uymPNk
