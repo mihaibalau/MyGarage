@@ -16,7 +16,7 @@ _Track insurance, road tax & inspection deadlines with automated alerts_
 
 **Frontend**: Next.js 14, TypeScript, Tailwind CSS, React Hook Form  
 **Backend**: Node.js, Express  
-**Database**: MySQL, Prisma ORM  
+**Database**: SQL, Prisma ORM  
 **Validation**: Zod  
 **Development**: Faker.js for test data
 
